@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX_FRAMES 10
+
+int n, r;
+struct frame {
+    char ack;
+    int data;
+} frm[MAX_FRAMES];
+
+void sender();
+void recvack();
+void resend_sr();
+void resend_gb();
+void goback();
+void selective();
+
+int main() {
+    int c;
+    srand(time(NULL)); // Initialize random number generator
+    do {
+        printf("\n\n 1. Selective Repeat ARQ\n 2. Go-Back-N ARQ\n 3. Exit from here\n");
+        printf("\n Enter your choice: ");
+        scanf("%d", &c);
+        switch (c) {
+            case 1:
+                selective();
+                break;
+            case 2:
+                goback();
+                break;
+            case 3:
+                exit(0);
+                break;
+        }
+    } while (c >= 4);
+    return 0;
+}
+
+void goback() {
+    sender();
+    recvack();
+    resend_gb();
+    printf("\n All frames sent successfully\n");
+}
+
+void selective() {
+    sender();
+    recvack();
+    resend_sr();
+    printf("\n All frames sent successfully\n");
+}
+
+void sender() {
+    printf("\n Enter the number of frames to be sent: ");
+    scanf("%d", &n);
+    for (int i = 1; i <= n; i++) {
+        printf("\n Enter the data of frame[%d]: ", i);
+        scanf("%d", &frm[i].data);
+        frm[i].ack = 'y';
+    }
+}
+
+void recvack() {
+    r = rand() % n + 1; // Randomly select a frame to be lost
+    frm[r].ack = 'n';
+    printf("\n The frame number %d is not received\n", r);
+}
+
+void resend_sr() {
+    printf("\n Resending frame %d\n", r);
+    frm[r].ack = 'y';
+    printf("\n The received data of frame %d is %d\n", r, frm[r].data);
+}
+
+void resend_gb() {
+    int i;
+    printf("\n Resending from frame %d\n", r);
+    for (i = r; i <= n; i++) {
+        frm[i].ack = 'y';
+        printf("\n Received data of frame %d is %d\n", i, frm[i].data);
+    }
+}
